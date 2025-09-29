@@ -1,0 +1,164 @@
+-- [Vampire Fang + Demonic Wisp + Dark Fragment + Race Display] - Rainbow Border Version
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local player = Players.LocalPlayer
+
+-- === UI setup ===
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "MaterialRaceDisplay"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
+-- Frame chính với viền cầu vồng
+local frame = Instance.new("Frame")
+frame.Position = UDim2.new(0.02, 0, 0.1, 0)
+frame.Size = UDim2.new(0, 170, 0, 0)
+frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+frame.BackgroundTransparency = 0.4
+frame.BorderSizePixel = 0
+frame.AutomaticSize = Enum.AutomaticSize.Y
+frame.Parent = screenGui
+
+-- UICorner cho bo tròn góc
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 12)
+corner.Parent = frame
+
+-- UIStroke cho viền cầu vồng
+local stroke = Instance.new("UIStroke")
+stroke.Thickness = 3
+stroke.Color = Color3.fromRGB(255, 0, 0)
+stroke.Parent = frame
+
+-- Layout
+local layout = Instance.new("UIListLayout")
+layout.Parent = frame
+layout.FillDirection = Enum.FillDirection.Vertical
+layout.SortOrder = Enum.SortOrder.LayoutOrder
+layout.Padding = UDim.new(0, 2)
+
+-- Hàm tạo label
+local function createLabel(text)
+    local label = Instance.new("TextLabel")
+    label.BackgroundTransparency = 1
+    label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    label.Font = Enum.Font.SourceSansBold
+    label.TextSize = 20
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Size = UDim2.new(1, -10, 0, 25)
+    label.Text = text
+    label.Parent = frame
+    return label
+end
+
+local vampireLabel   = createLabel("Vampire Fang: ...")
+local wispLabel      = createLabel("Demonic Wisp: ...")
+local fragmentLabel  = createLabel("Dark Fragment: ...")
+
+-- Frame riêng cho Race
+local raceFrame = Instance.new("Frame")
+raceFrame.Size = UDim2.new(1, -10, 0, 25)
+raceFrame.BackgroundTransparency = 1
+raceFrame.Parent = frame
+
+local raceText = Instance.new("TextLabel")
+raceText.BackgroundTransparency = 1
+raceText.Text = "Race:"
+raceText.Font = Enum.Font.SourceSansBold
+raceText.TextSize = 20
+raceText.TextColor3 = Color3.fromRGB(255, 255, 0)
+raceText.TextXAlignment = Enum.TextXAlignment.Left
+raceText.Size = UDim2.new(0, 60, 1, 0)
+raceText.Parent = raceFrame
+
+local raceValue = Instance.new("TextLabel")
+raceValue.BackgroundTransparency = 1
+raceValue.Text = "..."
+raceValue.Font = Enum.Font.SourceSansBold
+raceValue.TextSize = 20
+raceValue.TextXAlignment = Enum.TextXAlignment.Left
+raceValue.Position = UDim2.new(0, 65, 0, 0)
+raceValue.Size = UDim2.new(1, -65, 1, 0)
+raceValue.Parent = raceFrame
+
+-- === Hiệu ứng viền cầu vồng ===
+local rainbowColors = {
+    Color3.fromRGB(255, 0, 0),      -- Đỏ
+    Color3.fromRGB(255, 127, 0),    -- Cam
+    Color3.fromRGB(255, 255, 0),    -- Vàng
+    Color3.fromRGB(0, 255, 0),      -- Xanh lá
+    Color3.fromRGB(0, 0, 255),      -- Xanh dương
+    Color3.fromRGB(75, 0, 130),     -- Chàm
+    Color3.fromRGB(148, 0, 211),    -- Tím
+}
+
+task.spawn(function()
+    local colorIndex = 1
+    while true do
+        local nextIndex = colorIndex % #rainbowColors + 1
+        local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Linear)
+        local tween = TweenService:Create(stroke, tweenInfo, {Color = rainbowColors[nextIndex]})
+        tween:Play()
+        colorIndex = nextIndex
+        task.wait(0.5)
+    end
+end)
+
+-- === Function đếm item theo tên ===
+local function CountItem(itemName)
+    local inventory = game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("getInventory")
+    local count = 0
+    for _,v in pairs(inventory) do
+        if type(v) == "table" and v.Name == itemName then
+            count = count + (v.Count or 1)
+        end
+    end
+    return count
+end
+
+-- === Function lấy Race ===
+local function getRace()
+    local data = player:FindFirstChild("Data")
+    if not data then
+        return "Unknown"
+    end
+    return data:FindFirstChild("Race") and data.Race.Value or "Unknown"
+end
+
+-- === Update loop ===
+task.spawn(function()
+    while true do
+        local vampire  = CountItem("Vampire Fang")
+        local wisp     = CountItem("Demonic Wisp")
+        local fragment = CountItem("Dark Fragment")
+        local race     = getRace()
+
+        vampireLabel.Text  = "Vampire Fang: " .. vampire
+        wispLabel.Text     = "Demonic Wisp: " .. wisp
+        fragmentLabel.Text = "Dark Fragment: " .. fragment
+        raceValue.Text     = race
+
+        -- Đổi màu theo điều kiện nguyên liệu
+        vampireLabel.TextColor3  = vampire < 20 and Color3.fromRGB(255,0,0) or Color3.fromRGB(0,255,0)
+        wispLabel.TextColor3     = wisp < 20 and Color3.fromRGB(255,0,0) or Color3.fromRGB(0,255,0)
+        fragmentLabel.TextColor3 = fragment < 3 and Color3.fromRGB(255,0,0) or Color3.fromRGB(0,255,0)
+
+        -- Đổi màu theo Race
+        if race == "Cyborg" then
+            raceValue.TextColor3 = Color3.fromRGB(170, 0, 255)
+        elseif race == "Angel" then
+            raceValue.TextColor3 = Color3.fromRGB(255, 255, 255)
+        elseif race == "Human" then
+            raceValue.TextColor3 = Color3.fromRGB(255, 0, 0)
+        elseif race == "Fishman" then
+            raceValue.TextColor3 = Color3.fromRGB(0, 128, 255)
+        elseif race == "Mink" then
+            raceValue.TextColor3 = Color3.fromRGB(0, 255, 0)
+        else
+            raceValue.TextColor3 = Color3.fromRGB(200, 200, 200)
+        end
+
+        task.wait(1)
+    end
+end)
