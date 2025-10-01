@@ -132,7 +132,15 @@ task.spawn(function()
         -- Đổi màu theo điều kiện nguyên liệu
         vampireLabel.TextColor3  = vampire < 20 and Color3.fromRGB(255,0,0) or Color3.fromRGB(0,255,0)
         wispLabel.TextColor3     = wisp < 20 and Color3.fromRGB(255,0,0) or Color3.fromRGB(0,255,0)
-        fragmentLabel.TextColor3 = fragment < 3 and Color3.fromRGB(255,0,0) or Color3.fromRGB(0,255,0)
+        
+        -- Dark Fragment: 0-1 đỏ, 2 vàng, 3+ xanh
+        if fragment <= 1 then
+            fragmentLabel.TextColor3 = Color3.fromRGB(255,0,0)
+        elseif fragment == 2 then
+            fragmentLabel.TextColor3 = Color3.fromRGB(255,255,0)
+        else
+            fragmentLabel.TextColor3 = Color3.fromRGB(0,255,0)
+        end
 
         -- Đổi màu theo Race
         if race == "Cyborg" then
@@ -140,7 +148,7 @@ task.spawn(function()
         elseif race == "Angel" then
             raceLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
         elseif race == "Human" then
-            raceLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+            raceLabel.TextColor3 = Color3.fromRGB(255, 105, 180)
         elseif race == "Fishman" then
             raceLabel.TextColor3 = Color3.fromRGB(0, 128, 255)
         elseif race == "Mink" then
