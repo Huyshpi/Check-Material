@@ -1,4 +1,4 @@
--- [Vampire Fang + Demonic Wisp + Dark Fragment + Race Display] - Rainbow Border Version
+-- [Vampire Fang + Demonic Wisp + Dark Fragment + Race Display] - Rainbow LED Border (getcy style)
 
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -10,7 +10,7 @@ screenGui.Name = "MaterialRaceDisplay"
 screenGui.ResetOnSpawn = false
 screenGui.Parent = player:WaitForChild("PlayerGui")
 
--- Frame chính với viền cầu vồng
+-- Frame chính với viền led cầu vồng
 local frame = Instance.new("Frame")
 frame.Position = UDim2.new(0.02, 0, 0.13, 0)
 frame.Size = UDim2.new(0, 170, 0, 0)
@@ -25,11 +25,34 @@ local corner = Instance.new("UICorner")
 corner.CornerRadius = UDim.new(0, 12)
 corner.Parent = frame
 
--- UIStroke cho viền cầu vồng
+-- UIStroke + UIGradient cho viền led cầu vồng động
 local stroke = Instance.new("UIStroke")
 stroke.Thickness = 3
-stroke.Color = Color3.fromRGB(255, 0, 0)
+stroke.Color = Color3.fromRGB(255, 255, 255)
+stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 stroke.Parent = frame
+
+local uiGradient = Instance.new("UIGradient")
+uiGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 0)),
+    ColorSequenceKeypoint.new(0.166, Color3.fromRGB(255, 255, 0)),
+    ColorSequenceKeypoint.new(0.333, Color3.fromRGB(0, 255, 0)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 255, 255)),
+    ColorSequenceKeypoint.new(0.666, Color3.fromRGB(255, 0, 255)),
+    ColorSequenceKeypoint.new(0.833, Color3.fromRGB(255, 0, 127)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 102, 0))
+}
+uiGradient.Rotation = 45
+uiGradient.Parent = stroke
+
+-- Hiệu ứng chuyển động cầu vồng
+task.spawn(function()
+    while true do
+        TweenService:Create(uiGradient, TweenInfo.new(3, Enum.EasingStyle.Linear), {Rotation = 360}):Play()
+        wait(3)
+        uiGradient.Rotation = 0
+    end
+end)
 
 -- Layout
 local layout = Instance.new("UIListLayout")
@@ -71,29 +94,6 @@ raceLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 raceLabel.TextXAlignment = Enum.TextXAlignment.Center
 raceLabel.Size = UDim2.new(1, 0, 1, 0)
 raceLabel.Parent = raceFrame
-
--- === Hiệu ứng viền cầu vồng ===
-local rainbowColors = {
-    Color3.fromRGB(255, 0, 0),      -- Đỏ
-    Color3.fromRGB(255, 127, 0),    -- Cam
-    Color3.fromRGB(255, 255, 0),    -- Vàng
-    Color3.fromRGB(0, 255, 0),      -- Xanh lá
-    Color3.fromRGB(0, 0, 255),      -- Xanh dương
-    Color3.fromRGB(75, 0, 130),     -- Chàm
-    Color3.fromRGB(148, 0, 211),    -- Tím
-}
-
-task.spawn(function()
-    local colorIndex = 1
-    while true do
-        local nextIndex = colorIndex % #rainbowColors + 1
-        local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Linear)
-        local tween = TweenService:Create(stroke, tweenInfo, {Color = rainbowColors[nextIndex]})
-        tween:Play()
-        colorIndex = nextIndex
-        task.wait(0.5)
-    end
-end)
 
 -- === Function đếm item theo tên ===
 local function CountItem(itemName)
