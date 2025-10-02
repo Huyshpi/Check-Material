@@ -157,6 +157,6 @@ task.spawn(function()
             raceLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
         end
 
-        task.wait(1)
+        task.wait()
     end
 end)
