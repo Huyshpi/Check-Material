@@ -1,4 +1,11 @@
 -- [Vampire Fang + Demonic Wisp + Dark Fragment + Race Display] - Rainbow LED Border (getcy style)
+repeat task.wait() until game:IsLoaded() and game.Players.LocalPlayer:FindFirstChild("DataLoaded")
+
+if game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("Main (minimal)") then
+    repeat
+        task.wait()
+    until not game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("Main (minimal)")
+end
 
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
